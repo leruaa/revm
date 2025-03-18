@@ -281,7 +281,9 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
 ) -> Result<(), EVMError<DB::Error>> {
     mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
 
-    if context.evm.inner.env.tx.optimism.source_hash.is_none() {
+    // If the transaction isn't a deposit transaction, refund the caller for the operator fee.
+    let is_deposit = context.evm.inner.env.tx.optimism.source_hash.is_some();
+    if !is_deposit && SPEC::SPEC_ID.is_enabled_in(SpecId::ISTHMUS) {
         let operator_fee_refund = context
             .evm
             .inner
@@ -291,6 +293,7 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
             .operator_fee_refund(gas, SPEC::SPEC_ID);
         tracing::info!("Operator fee refund: {}", operator_fee_refund);
         if operator_fee_refund.is_zero() {
+            tracing::info!("No operator fee refund to be made.");
             return Ok(());
         }
 
