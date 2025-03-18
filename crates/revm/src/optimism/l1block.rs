@@ -209,6 +209,7 @@ impl L1BlockInfo {
         let product = gas_limit.saturating_mul(operator_fee_scalar)
             / (U256::from(OPERATOR_FEE_SCALAR_DECIMAL));
 
+        tracing::info!("Applying operator fee charge: {:?}", product);
         product.saturating_add(operator_fee_constant)
     }
 
