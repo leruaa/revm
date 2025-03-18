@@ -279,6 +279,8 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
     context: &mut Context<EXT, DB>,
     gas: &Gas,
 ) -> Result<(), EVMError<DB::Error>> {
+    mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
+
     // If the transaction isn't a deposit transaction, refund the caller for the operator fee.
     let is_deposit = context.evm.inner.env.tx.optimism.source_hash.is_some();
     if !is_deposit && SPEC::SPEC_ID.is_enabled_in(SpecId::ISTHMUS) {
@@ -289,11 +291,6 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
             .as_ref()
             .expect("L1BlockInfo should be loaded")
             .operator_fee_refund(gas, SPEC::SPEC_ID);
-        tracing::info!("Operator fee refund: {}", operator_fee_refund);
-        if operator_fee_refund.is_zero() {
-            tracing::info!("No operator fee refund to be made.");
-            return Ok(());
-        }
 
         let caller_account = context
             .evm
@@ -309,8 +306,6 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
             .balance
             .saturating_add(operator_fee_refund);
     }
-
-    // mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
 
     Ok(())
 }

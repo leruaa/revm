@@ -205,6 +205,8 @@ impl L1BlockInfo {
         let operator_fee_constant = self
             .operator_fee_constant
             .expect("Missing operator fee constant for isthmus L1 Block");
+        tracing::info!("Operator fee scalar: {:?}", operator_fee_scalar);
+        tracing::info!("Operator fee constant: {:?}", operator_fee_constant);
 
         let product = gas_limit.saturating_mul(operator_fee_scalar)
             / (U256::from(OPERATOR_FEE_SCALAR_DECIMAL));
