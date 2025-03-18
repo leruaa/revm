@@ -281,7 +281,9 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
 ) -> Result<(), EVMError<DB::Error>> {
     mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
 
+    tracing::info!("Inside reimbuse handler");
     if context.evm.inner.env.tx.optimism.source_hash.is_none() {
+        tracing::info!("Reimbursing caller for operator fee refund");
         let operator_fee_refund = context
             .evm
             .inner
