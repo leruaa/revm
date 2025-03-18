@@ -450,8 +450,11 @@ pub fn reward_beneficiary<SPEC: Spec, EXT, DB: Database>(
             .journaled_state
             .load_account(OPERATOR_FEE_RECIPIENT, &mut context.evm.inner.db)?;
 
+
+        tracing::info!("Operator fee vault account balance: {:?}", operator_fee_vault_account);
         operator_fee_vault_account.mark_touch();
         operator_fee_vault_account.data.info.balance += operator_fee_cost;
+        tracing::info!("Operator fee vault account balance: {:?}", operator_fee_vault_account);
     }
     Ok(())
 }
