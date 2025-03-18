@@ -379,6 +379,7 @@ pub fn deduct_caller<SPEC: Spec, EXT, DB: Database>(
         let operator_fee_charge =
             l1_block.operator_fee_charge(enveloped_tx, gas_limit, SPEC::SPEC_ID);
 
+        tracing::info!("Charging caller account with operator fee charge: {}", operator_fee_charge);
         caller_account.info.balance = caller_account
             .info
             .balance
@@ -421,7 +422,6 @@ pub fn reward_beneficiary<SPEC: Spec, EXT, DB: Database>(
             U256::from(gas.spent() - gas.refunded() as u64),
             SPEC::SPEC_ID,
         );
-        tracing::info!("Operator fee cost: {}", operator_fee_cost);
 
         // Send the L1 cost of the transaction to the L1 Fee Vault.
         let mut l1_fee_vault_account = context
@@ -456,10 +456,8 @@ pub fn reward_beneficiary<SPEC: Spec, EXT, DB: Database>(
                 .journaled_state
                 .load_account(OPERATOR_FEE_RECIPIENT, &mut context.evm.inner.db)?;
 
-            tracing::info!("Operator fee vault account balance: {:?}", operator_fee_vault_account);
             operator_fee_vault_account.mark_touch();
             operator_fee_vault_account.data.info.balance += operator_fee_cost;
-            tracing::info!("Operator fee vault account balance after: {:?}", operator_fee_vault_account);
         }
     }
     Ok(())
