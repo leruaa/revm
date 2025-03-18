@@ -192,8 +192,8 @@ impl L1BlockInfo {
     /// Introduced in isthmus. Prior to isthmus, the operator fee is always zero.
     pub fn operator_fee_charge(&self, input: &[u8], gas_limit: U256, spec_id: SpecId) -> U256 {
         // If the input is a deposit transaction or empty, the default value is zero.
+        tracing::info!("Checking for deposit tx: {:?}", input.first());
         if input.is_empty() || input.first() == Some(&0x7E) {
-            tracing::info!("Found deposit tx: {:?}", input.first());
             return U256::ZERO;
         }
         if !spec_id.is_enabled_in(SpecId::ISTHMUS) {
@@ -209,7 +209,6 @@ impl L1BlockInfo {
         let product = gas_limit.saturating_mul(operator_fee_scalar)
             / (U256::from(OPERATOR_FEE_SCALAR_DECIMAL));
 
-        tracing::info!("Applying operator fee charge: {:?}", product);
         product.saturating_add(operator_fee_constant)
     }
 
