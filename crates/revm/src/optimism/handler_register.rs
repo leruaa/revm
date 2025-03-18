@@ -282,11 +282,6 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
     mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
 
     if context.evm.inner.env.tx.optimism.source_hash.is_none() {
-        let caller_account = context
-            .evm
-            .inner
-            .journaled_state
-            .load_account(context.evm.inner.env.tx.caller, &mut context.evm.inner.db)?;
         let operator_fee_refund = context
             .evm
             .inner
@@ -294,6 +289,15 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
             .as_ref()
             .expect("L1BlockInfo should be loaded")
             .operator_fee_refund(gas, SPEC::SPEC_ID);
+        if operator_fee_refund.is_zero() {
+            return Ok(());
+        }
+
+        let caller_account = context
+            .evm
+            .inner
+            .journaled_state
+            .load_account(context.evm.inner.env.tx.caller, &mut context.evm.inner.db)?;
 
         // In additional to the normal transaction fee, additionally refund the caller
         // for the operator fee.
