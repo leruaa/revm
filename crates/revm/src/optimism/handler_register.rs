@@ -310,7 +310,7 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
             .saturating_add(operator_fee_refund);
     }
 
-    mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
+    // mainnet::reimburse_caller::<SPEC, EXT, DB>(context, gas)?;
 
     Ok(())
 }
@@ -375,11 +375,8 @@ pub fn deduct_caller<SPEC: Spec, EXT, DB: Database>(
 
         // Deduct the operator fee from the caller's account.
         let gas_limit = U256::from(context.evm.inner.env.tx.gas_limit);
-
         let operator_fee_charge =
             l1_block.operator_fee_charge(enveloped_tx, gas_limit, SPEC::SPEC_ID);
-
-        tracing::info!("Charging caller account with operator fee charge: {}", operator_fee_charge);
         caller_account.info.balance = caller_account
             .info
             .balance
