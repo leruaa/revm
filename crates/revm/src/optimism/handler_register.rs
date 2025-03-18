@@ -281,9 +281,7 @@ pub fn reimburse_caller<SPEC: Spec, EXT, DB: Database>(
 ) -> Result<(), EVMError<DB::Error>> {
     // If the transaction isn't a deposit transaction, refund the caller for the operator fee.
     let is_deposit = context.evm.inner.env.tx.optimism.source_hash.is_some();
-    let is_empty = context.evm.inner.env.tx.data.is_empty();
-    tracing::info!("Is deposit: {}, Is empty: {}", is_deposit, is_empty);
-    if !is_empty && !is_deposit && SPEC::SPEC_ID.is_enabled_in(SpecId::ISTHMUS) {
+    if !is_deposit && SPEC::SPEC_ID.is_enabled_in(SpecId::ISTHMUS) {
         let operator_fee_refund = context
             .evm
             .inner
@@ -423,6 +421,7 @@ pub fn reward_beneficiary<SPEC: Spec, EXT, DB: Database>(
             U256::from(gas.spent() - gas.refunded() as u64),
             SPEC::SPEC_ID,
         );
+        tracing::info!("Operator fee cost: {}", operator_fee_cost);
 
         // Send the L1 cost of the transaction to the L1 Fee Vault.
         let mut l1_fee_vault_account = context
