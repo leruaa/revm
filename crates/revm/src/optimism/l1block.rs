@@ -227,7 +227,7 @@ impl L1BlockInfo {
         // We're computing the difference between two operator fees, so no need to include the
         // constant.
 
-        operator_fee_scalar.saturating_mul(U256::from(gas.remaining() + gas.refunded() as u64))
+        operator_fee_scalar.saturating_mul(U256::from(gas.remaining() as u64))
             / (U256::from(OPERATOR_FEE_SCALAR_DECIMAL))
     }
 
