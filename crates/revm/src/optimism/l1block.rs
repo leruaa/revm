@@ -229,8 +229,9 @@ impl L1BlockInfo {
         }
 
         let operator_cost_gas_limit = self.operator_fee_charge_inner(U256::from(gas.limit()));
-        let operator_cost_gas_used =
-            self.operator_fee_charge_inner(U256::from(gas.limit() - gas.remaining()));
+        let operator_cost_gas_used = self.operator_fee_charge_inner(U256::from(
+            gas.limit() - (gas.remaining() + gas.refunded() as u64),
+        ));
 
         operator_cost_gas_limit.saturating_sub(operator_cost_gas_used)
     }
